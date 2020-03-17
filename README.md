@@ -1,5 +1,7 @@
 # kpack-viz
 
+![CI](https://github.com/niallthomson/kpack-viz/workflows/CI/badge.svg)
+
 `kpack-viz` is an application for viewing the state of `kpack` running in your Kubernetes cluster.
 
 High-level features include:
