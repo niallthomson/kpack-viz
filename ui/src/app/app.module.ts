@@ -12,6 +12,7 @@ import { NgEncodeURIComponentPipeModule } from 'angular-pipes';
 import { BuildsModule } from './builds/builds.module';
 import { ImagesModule } from './images/images.module';
 import { BuildsComponent } from './builds/builds.component';
+import { UrlService } from './url.service';
 
 @NgModule({
   declarations: [

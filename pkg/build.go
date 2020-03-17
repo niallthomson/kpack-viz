@@ -6,6 +6,8 @@ import (
 	informer "github.com/pivotal/kpack/pkg/client/informers/externalversions/build/v1alpha1"
 	lister "github.com/pivotal/kpack/pkg/client/listers/build/v1alpha1"
 	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/client-go/tools/cache"
+	"log"
 	"strconv"
 	"time"
 )
@@ -29,9 +31,14 @@ type BuildStage struct {
 	Status  string    `json:"status"`
 }
 
+type BuildWatcher interface {
+	OnBuild(*Build)
+}
+
 type KpackBuildService struct {
 	informer informer.BuildInformer
 	lister   lister.BuildLister
+	watchers []BuildWatcher
 }
 
 // NewKpackBuildService creates a new service
@@ -40,6 +47,10 @@ func newKpackBuildService(buildInformer informer.BuildInformer, buildLister list
 		informer: buildInformer,
 		lister:   buildLister,
 	}
+}
+
+func (h *KpackBuildService) GetInformer() informer.BuildInformer {
+	return h.informer
 }
 
 func (h *KpackBuildService) GetBuilds() ([]*Build, error) {
@@ -111,4 +122,52 @@ func (h *KpackBuildService) convertBuild(b *v1alpha1.Build) (*Build, error) {
 		Stages:      stages,
 		Tags:        b.Spec.Tags,
 	}, nil
+}
+
+func (h *KpackBuildService) AddWatcher(watcher BuildWatcher) {
+	h.watchers = append(h.watchers, watcher)
+}
+
+func (h *KpackBuildService) Start() {
+	go h.doStart()
+}
+
+func (h *KpackBuildService) doStart() {
+	stopper := make(chan struct{})
+	defer close(stopper)
+
+	informer := h.informer.Informer()
+
+	informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			rawBuild := obj.(*v1alpha1.Build)
+			log.Printf("New build Added to Store: %s", rawBuild.GetName())
+
+			build, err := h.convertBuild(rawBuild)
+			if err != nil {
+				log.Printf("Failed to process build %s", rawBuild.GetName())
+				return
+			}
+
+			for _, w := range h.watchers {
+				w.OnBuild(build)
+			}
+		},
+		UpdateFunc: func(old interface{}, new interface{}) {
+			rawBuild := new.(*v1alpha1.Build)
+			log.Printf("Build updated: %s", rawBuild.GetName())
+
+			build, err := h.convertBuild(rawBuild)
+			if err != nil {
+				log.Printf("Failed to process build %s", rawBuild.GetName())
+				return
+			}
+
+			for _, w := range h.watchers {
+				w.OnBuild(build)
+			}
+		},
+	})
+
+	informer.Run(stopper)
 }

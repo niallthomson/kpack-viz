@@ -4,15 +4,18 @@ import { Observable, Observer, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Build } from './build';
 import { BuildStage } from './build-stage';
-import { environment } from '../../environments/environment';
+
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { UrlService } from '../url.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BuildsService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private urlService : UrlService) {
+
+  }
 
   socket: Subject<any>;
   observer: Observer<object>;
@@ -94,12 +97,29 @@ export class BuildsService {
     );
   }*/
 
+  watchBuilds() : Observable<Build> {
+    let uri = this.urlService.getBaseWsUrl()+"/api/watch/builds";
+
+    this.socket = webSocket(uri);
+
+    return this.socket.asObservable().pipe(
+      map(res => {
+        console.log()
+
+        return res;
+      }));
+  }
+
   getBuilds() : Observable<Build[]> {
-    return this.http.get<Build[]>("/api/builds")
+    let uri = this.urlService.getBaseUrl()+"/api/builds";
+
+    return this.http.get<Build[]>(uri)
   }
   
   getLogs(image : string, build : number) : Observable<string> {
-    return this.http.get("/api/logs?image="+image+"&build="+build, {responseType: 'text'})
+    let uri = this.urlService.getBaseUrl()+"/api/logs?image="+image+"&build="+build;
+
+    return this.http.get(uri, {responseType: 'text'})
   }
 
   private handleError(error) {

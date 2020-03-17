@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"flag"
-	"fmt"
 	"github.com/buildpacks/lifecycle"
 	"github.com/niallthomson/kpack-viz/pkg"
 	_ "github.com/niallthomson/kpack-viz/statik"
+	"github.com/pivotal/kpack/pkg/apis/build/v1alpha1"
 	"github.com/rakyll/statik/fs"
 	"io"
+	"k8s.io/client-go/tools/cache"
 	"log"
 	"net/http"
 	"net/url"
@@ -34,6 +35,13 @@ func main() {
 
 	hub := pkg.NewHub()
 	go hub.Run()
+
+	//go watchBuilds(buildService, hub)
+	buildWatcher := pkg.NewHubBuildWatcher(hub)
+	buildService.AddWatcher(buildWatcher)
+
+	kpackService.Start()
+
 	statikFS, err := fs.New()
 	if err != nil {
 		log.Fatal(err)
@@ -136,6 +144,7 @@ func main() {
 			http.FileServer(statikFS).ServeHTTP(w, r)
 		}
 	})
+
 	err = http.ListenAndServe(*addr, nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
@@ -160,4 +169,34 @@ func splitImage(input string) (string, string, error) {
 		return "", "", errors.New("malformed image")
 	}
 	return s[0], s[1] + "/" + s[2], nil
+}
+
+func watchBuilds(buildService *pkg.KpackBuildService, h *pkg.Hub) {
+	stopper := make(chan struct{})
+	defer close(stopper)
+
+	buildInformer := buildService.GetInformer()
+
+	informer := buildInformer.Informer()
+
+	informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			mObj := obj.(*v1alpha1.Build)
+			log.Printf("New build Added to Store: %s", mObj.GetName())
+
+			str, _ := json.Marshal(mObj)
+
+			h.Broadcast(str)
+		},
+		UpdateFunc: func(old interface{}, new interface{}) {
+			build := new.(*v1alpha1.Build)
+			log.Printf("Build updated: %s", build.GetName())
+
+			str, _ := json.Marshal(build)
+
+			h.Broadcast(str)
+		},
+	})
+
+	informer.Run(stopper)
 }

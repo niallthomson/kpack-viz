@@ -16,11 +16,18 @@ export class BuildsComponent implements OnInit {
 
   ngOnInit() {
     this.buildMap = new Map<string, Build>();
-    /*this.sub = this.buildsService.getBuilds()
+    
+    this.buildsService.getBuilds()
+    .subscribe(builds => {
+      this.setBuilds(builds);
+
+      builds.forEach((build : Build) => {
+        this.buildMap.set(build.id, build);
+      })
+
+      this.sub = this.buildsService.watchBuilds()
       .subscribe(build => {
         console.log(build)
-
-        //this.buildMap.delete(build.id)
 
         this.buildMap.set(build.id, build);
 
@@ -30,17 +37,17 @@ export class BuildsComponent implements OnInit {
           builds.push(value)
         });
 
-        this.builds = builds.sort((a, b) => b.started.getTime() - a.started.getTime()).slice(0, 10);
-      });*/
-
-      this.buildsService.getBuilds()
-      .subscribe(builds => {
-        this.builds = builds.sort((a, b) => new Date(b.started).getTime() - new Date(a.started).getTime()).slice(0, 10)
+        this.setBuilds(builds)
       });
+    });
+  }
+
+  setBuilds(builds : Build[]) {
+    this.builds = builds.sort((a, b) => new Date(b.started).getTime() - new Date(a.started).getTime()).slice(0, 10)
   }
 
   ngOnDestroy() {
-    //this.sub.unsubscribe();
+    this.sub.unsubscribe();
   }
 
 }

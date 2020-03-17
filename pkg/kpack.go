@@ -50,3 +50,7 @@ func (h *KpackService) GetBuildService() *KpackBuildService {
 func (h *KpackService) GetImageService() *KpackImageService {
 	return h.imageService
 }
+
+func (h *KpackService) Start() {
+	h.buildService.Start()
+}
