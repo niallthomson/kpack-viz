@@ -5,7 +5,7 @@ on:
       - master
 
 jobs:
-  build:
+  node:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -24,3 +24,17 @@ jobs:
         run: |
           npm ci
           npm run build
+          
+  golang:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: ['1.13']
+    steps:
+      - uses: actions/checkout@v2
+      - name: Go ${{ matrix.go }}
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.go }}
+
+      - run: go build
