@@ -1,0 +1,11 @@
+.build-succeeded {
+  border-left: 3px solid #5eb715;
+}
+
+.build-error {
+  border-left: 3px solid #c21d00;
+}
+
+.build-running {
+  border-left: 3px solid #0271a3;
+}

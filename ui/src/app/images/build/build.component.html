@@ -1,0 +1,141 @@
+<div style="max-width: 900px; margin: auto">
+    <ng-container *ngIf="build">
+        <div class="build-{{build.status}}" style="padding-left: 10px">
+            <h2>Build: {{image}} #{{buildNumber}}</h2>
+
+        </div>
+        <div style="margin-top: 10px">
+            <a routerLink="../../">&laquo; Back</a>
+        </div>
+        <div>
+            <clr-tabs>
+                <clr-tab>
+                    <button clrTabLink>Overview</button>
+                    <clr-tab-content>
+                        <div class="clr-row" style="margin-top: 20px">
+                            <div class="clr-col-4">
+                                <div>
+                                    <div><span class="p2">Image</span></div>
+                                    <div style="padding-bottom: 0.5rem">{{image}}</div>
+                                    <div><span class="p2">Build</span></div>
+                                    <div style="padding-bottom: 0.5rem">{{buildNumber}}</div>
+                                </div>
+                            </div>
+                            <div class="clr-col-4">
+                                <div>
+                                    <div><span class="p2">Started</span></div>
+                                    <div style="padding-bottom: 0.5rem">{{build.started | date: 'medium'}}</div>
+                                    <div><span class="p2">Status</span></div>
+                                    <div style="padding-bottom: 0.5rem">{{build.status | titlecase}}</div>
+                                </div>
+                            </div>
+                            <div class="clr-col-4">
+                                <div>
+                                    <ul class="clr-timeline clr-timeline-vertical">
+                                        <li class="clr-timeline-step disabled" *ngFor="let stage of build.stages"
+                                            style="min-width: 6rem">
+                                            <div class="clr-timeline-step-header">
+                                                {{stage.started ? (stage.started | date: 'shortTime') : "&nbsp;"}}
+                                            </div>
+                                            <ng-container [ngSwitch]="stage.status">
+                                                <clr-icon *ngSwitchCase="'complete'" shape="success-standard">
+                                                </clr-icon>
+                                                <clr-icon *ngSwitchCase="'running'" shape="dot-circle"></clr-icon>
+                                                <clr-icon *ngSwitchCase="'error'" shape="error-standard"></clr-icon>
+                                                <clr-icon *ngSwitchDefault shape="circle"></clr-icon>
+                                            </ng-container>
+                                            <div class="clr-timeline-step-body">
+                                                <span class="clr-timeline-step-title">{{stage.name | titlecase}}</span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </clr-tab-content>
+                </clr-tab>
+                <clr-tab>
+                    <button clrTabLink>Log</button>
+                    <clr-tab-content>
+                        <div style="margin-top: 20px">
+                            <code style="white-space: pre-line; font-size: 0.8em">{{log}}</code>
+                        </div>
+                    </clr-tab-content>
+                </clr-tab>
+                <clr-tab>
+                    <button clrTabLink>Image Artifact</button>
+                    <clr-tab-content>
+                        <ng-container *ngIf="rawImage">
+                            <div class="clr-row" style="margin-top: 20px">
+                                <div class="clr-col-6">
+                                    <div>
+                                        <div><span class="p2">Size</span></div>
+                                        <div style="padding-bottom: 0.5rem">{{rawImage.size | bytes}}</div>
+                                        <div><span class="p2">Pushed</span></div>
+                                        <div style="padding-bottom: 0.5rem">{{rawImage.pushed | date: 'medium'}}</div>
+                                        <div><span class="p2">Stack</span></div>
+                                        <div style="padding-bottom: 0.5rem">{{rawImage.stack}}</div>
+                                    </div>
+                                </div>
+                                <div class="clr-col-6">
+                                    <div>
+                                        <div><span class="p2">Buildpacks</span></div>
+                                        <div style="padding-bottom: 0.5rem">
+                                            <ul class="list">
+                                                <li *ngFor="let buildpack of rawImage.imageInfo.buildpacks">
+                                                    {{buildpack.id}} {{buildpack.version}}</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 10px">
+                                <h4>BOM</h4>
+                            </div>
+                            <clr-accordion>
+                                <clr-accordion-panel *ngFor="let item of rawImage.imageInfo.bom">
+                                    <clr-accordion-title>{{item.name}} {{item.version}}</clr-accordion-title>
+                                    <clr-accordion-content *clrIfExpanded>
+                                        <div class="bom-content">
+                                            <div class="clr-row">
+                                                <div class="clr-col-6">
+                                                    <div><span class="p2">Name</span></div>
+                                                    <div style="padding-bottom: 0.5rem">{{item.metadata.name}}</div>
+                                                    <div><span class="p2">Version</span></div>
+                                                    <div style="padding-bottom: 0.5rem">{{item.version}}</div>
+                                                    <div><span class="p2">Buildpack</span></div>
+                                                    <div style="padding-bottom: 0.5rem">{{item.buildpack.id}}
+                                                        {{item.buildpack.version}}</div>
+                                                </div>
+                                                <div class="clr-col-6">
+                                                    <div><span class="p2">Licenses</span></div>
+                                                    <div>
+                                                        <ul class="list" *ngIf='item.metadata.licenses.length > 0'>
+                                                            <li *ngFor="let license of item.metadata.licenses">
+                                                                {{license.type}}</li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </clr-accordion-content>
+                                </clr-accordion-panel>
+                            </clr-accordion>
+                        </ng-container>
+                        <div style="margin-top: 20px; text-align: center" *ngIf="!rawImage">
+                            No image produced
+                        </div>
+                    </clr-tab-content>
+                </clr-tab>
+                <clr-tab>
+                    <button clrTabLink>Diff</button>
+                    <clr-tab-content>
+                        <div style="margin-top: 20px; text-align: center" *ngIf="!rawImage">
+                            No image produced
+                        </div>
+                    </clr-tab-content>
+                </clr-tab>
+            </clr-tabs>
+        </div>
+    </ng-container>
+</div>

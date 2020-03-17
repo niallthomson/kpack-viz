@@ -1,0 +1,55 @@
+<div style="max-width: 900px; margin: auto">
+    <div>
+        <h2>Image: {{name}}</h2>
+    </div>
+    <div class="clr-row" style="margin-top: 20px">
+        <div class="clr-col-6">
+            <div>
+                <div><span class="p2">Image</span></div>
+                <div style="padding-bottom: 0.5rem">{{image.name}}</div>
+                <div><span class="p2">Tag</span></div>
+                <div style="padding-bottom: 0.5rem">{{image.tag}}</div>
+            </div>
+        </div>
+        <div class="clr-col-6">
+            <div>
+                <div><span class="p2">Git</span></div>
+                <div style="padding-bottom: 0.5rem">{{image.gitSource.url}}</div>
+                <div><span class="p2">Revision</span></div>
+                <div style="padding-bottom: 0.5rem">{{image.gitSource.revision}}</div>
+            </div>
+        </div>
+    </div>
+    <div class="clr-row">
+        <div class="clr-col-12">
+        <div>
+            <div><span class="p2">Latest</span></div>
+            <div style="padding-bottom: 0.5rem">{{image.latestImage}}</div>
+        </div>
+        </div>
+    </div>
+    <div>
+        <h4>Builds</h4>
+    </div>
+    <div>
+        <clr-datagrid>
+            <clr-dg-column width="5%">#</clr-dg-column>
+            <clr-dg-column>Started</clr-dg-column>
+            <clr-dg-column>Status</clr-dg-column>
+        
+            <clr-dg-row *clrDgItems="let build of builds">
+                <clr-dg-cell><a routerLink="build/{{build.buildNumber}}">{{build.buildNumber}}</a></clr-dg-cell>
+                <clr-dg-cell>{{build.started | date: 'shortTime' }}</clr-dg-cell>
+                <clr-dg-cell>{{build.status | titlecase}}</clr-dg-cell>
+            </clr-dg-row>
+        
+            <clr-dg-footer>
+                <clr-dg-pagination #pagination [clrDgPageSize]="10">
+                    <clr-dg-page-size [clrPageSizeOptions]="[10,20,50,100]">Builds per page</clr-dg-page-size>
+                    {{pagination.firstItem + 1}} - {{pagination.lastItem + 1}}
+                    of {{pagination.totalItems}} builds
+                </clr-dg-pagination>
+            </clr-dg-footer>
+        </clr-datagrid>
+    </div>
+</div>

@@ -1,0 +1,31 @@
+<div style="max-width: 900px; margin: auto">
+    <div>
+        <h2>Recent Builds</h2>
+    </div>
+    <div *ngIf='builds.length == 0' style="text-align: center">
+        <h4>No recent builds</h4>
+    </div>
+    <div *ngFor="let build of builds" class="build-{{build.status}}">
+        <div style="margin-left: 20px">
+            <h4><a routerLink="/images/{{build.image}}/build/{{build.buildNumber}}">{{build.image}} #{{build.buildNumber}}</a></h4>
+        </div>
+        <div>
+            <ul class="clr-timeline clr-timeline-horizontal">
+                <li class="clr-timeline-step disabled" *ngFor="let stage of build.stages" style="min-width: 6rem">
+                    <div class="clr-timeline-step-header">
+                        {{stage.started ? (stage.started | date: 'shortTime') : "&nbsp;"}}
+                    </div>
+                    <ng-container [ngSwitch]="stage.status">
+                        <clr-icon *ngSwitchCase="'complete'" shape="success-standard"></clr-icon>
+                        <clr-icon *ngSwitchCase="'running'" shape="dot-circle"></clr-icon>
+                        <clr-icon *ngSwitchCase="'error'" shape="error-standard"></clr-icon>
+                        <clr-icon *ngSwitchDefault shape="circle"></clr-icon>
+                    </ng-container>
+                    <div class="clr-timeline-step-body">
+                        <span class="clr-timeline-step-title">{{stage.name | titlecase}}</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
