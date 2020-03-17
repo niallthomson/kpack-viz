@@ -24,7 +24,7 @@ jobs:
         run: |
           npm ci
           npm run build
-          
+
   golang:
     runs-on: ubuntu-latest
     strategy:
@@ -37,4 +37,7 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
 
-      - run: go build
+      - run: |
+          go get github.com/rakyll/statik
+          statik -src=ui/dist/ui
+          go build -o kpack-viz main.go
