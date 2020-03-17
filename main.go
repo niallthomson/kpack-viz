@@ -4,13 +4,16 @@ import (
 	"encoding/json"
 	"errors"
 	"flag"
+	"fmt"
 	"github.com/buildpacks/lifecycle"
 	"github.com/niallthomson/kpack-viz/pkg"
 	_ "github.com/niallthomson/kpack-viz/statik"
 	"github.com/rakyll/statik/fs"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 )
 
@@ -120,7 +123,19 @@ func main() {
 
 		json.NewEncoder(w).Encode(rawImage)
 	})
-	http.Handle("/", http.FileServer(statikFS))
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		_, err := statikFS.Open(r.URL.Path)
+		if os.IsNotExist(err) {
+			index, err := statikFS.Open("/index.html")
+			if err != nil {
+				w.WriteHeader(http.StatusNotFound)
+				return
+			}
+			io.Copy(w, index)
+		} else {
+			http.FileServer(statikFS).ServeHTTP(w, r)
+		}
+	})
 	err = http.ListenAndServe(*addr, nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
