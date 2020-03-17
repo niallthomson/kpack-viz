@@ -24,20 +24,3 @@ jobs:
         run: |
           npm ci
           npm run build
-
-  golang:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        go: ['1.13']
-    steps:
-      - uses: actions/checkout@v2
-      - name: Go ${{ matrix.go }}
-        uses: actions/setup-go@v1
-        with:
-          go-version: ${{ matrix.go }}
-
-      - run: |
-          go get github.com/rakyll/statik
-          statik -src=ui/dist/ui
-          go build -o kpack-viz main.go
