@@ -20,7 +20,7 @@ jobs:
           node-version: $
 
       - name: npm install and npm run build
-      working-directory: ./ui
+        working-directory: ./ui
         run: |
           npm ci
           npm run build
