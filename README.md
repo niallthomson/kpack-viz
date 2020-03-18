@@ -53,8 +53,6 @@ This will start the server on port `8080`, so access the following URL in your b
 http://localhost:8080
 ```
 
-Note: There is currently a bug which means you can only load the application from the root path, otherwise you will get a 404 error
-
 ### In Kubernetes
 
 TODO
