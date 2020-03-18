@@ -14,7 +14,6 @@ type KpackService struct {
 }
 
 func NewKpackService() (*KpackService, error) {
-	//clusterConfig, err := k8s.BuildConfigFromFlags("", "")
 	clusterConfig, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		clientcmd.NewDefaultClientConfigLoadingRules(),
 		&clientcmd.ConfigOverrides{}).ClientConfig()
