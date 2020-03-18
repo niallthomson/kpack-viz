@@ -10,6 +10,7 @@ import { DateAgoPipe } from './pipes/date-ago.pipe';
 import { NgEncodeURIComponentPipeModule } from 'angular-pipes';
 import { BuildsModule } from './builds/builds.module';
 import { ImagesModule } from './images/images.module';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { ImagesModule } from './images/images.module';
     NgEncodeURIComponentPipeModule,
     BuildsModule,
     ImagesModule,
+    HttpClientModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
