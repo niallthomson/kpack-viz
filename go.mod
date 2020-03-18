@@ -16,10 +16,11 @@ require (
 	github.com/go-openapi/swag v0.19.8
 	github.com/go-openapi/validate v0.19.7
 	github.com/gogo/protobuf v1.3.1 // indirect
+	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/golang/protobuf v1.3.5 // indirect
+	github.com/google/glog v0.4.0 // indirect
 	github.com/google/go-containerregistry v0.0.0-20200313165449-955bf358a3d8 // indirect
 	github.com/gorilla/websocket v1.4.1
-	github.com/matthewmcnew/build-service-visualization v0.0.2
 	github.com/mattn/go-colorable v0.1.6 // indirect
 	github.com/pivotal/kpack v0.0.6
 	github.com/rakyll/statik v0.1.7

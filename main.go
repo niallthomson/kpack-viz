@@ -5,13 +5,13 @@ import (
 	"errors"
 	"flag"
 	"github.com/buildpacks/lifecycle"
+	"github.com/golang/glog"
 	"github.com/niallthomson/kpack-viz/pkg"
 	_ "github.com/niallthomson/kpack-viz/statik"
 	"github.com/pivotal/kpack/pkg/apis/build/v1alpha1"
 	"github.com/rakyll/statik/fs"
 	"io"
 	"k8s.io/client-go/tools/cache"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -25,7 +25,7 @@ func main() {
 
 	kpackService, err := pkg.NewKpackService()
 	if err != nil {
-		log.Fatal(err)
+		glog.Fatal(err)
 	}
 
 	buildService := kpackService.GetBuildService()
@@ -44,7 +44,7 @@ func main() {
 
 	statikFS, err := fs.New()
 	if err != nil {
-		log.Fatal(err)
+		glog.Fatal(err)
 	}
 	http.HandleFunc("/api/watch/builds", func(w http.ResponseWriter, r *http.Request) {
 		enableCors(&w)
@@ -54,19 +54,20 @@ func main() {
 		enableCors(&w)
 		imageParam, ok := r.URL.Query()["image"]
 		if !ok || len(imageParam[0]) < 1 {
-			log.Printf("param 'image' is missing")
+			glog.Info("param 'image' is missing")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 		buildParam, ok := r.URL.Query()["build"]
 		if !ok || len(buildParam[0]) < 1 {
-			log.Printf("param 'build' is missing")
+			glog.Info("param 'build' is missing")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		logs, err := pkg.TestLogs(imageParam[0], buildParam[0])
+		logs, err := pkg.FetchLogs(imageParam[0], buildParam[0])
 		if err != nil {
+			glog.Info("Error fetching logs: %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -96,28 +97,28 @@ func main() {
 
 		tagParam, ok := r.URL.Query()["tag"]
 		if !ok || len(tagParam[0]) < 1 {
-			log.Printf("param 'tag' is missing")
+			glog.Info("param 'tag' is missing")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
 		decodedValue, err := url.QueryUnescape(tagParam[0])
 		if err != nil {
-			log.Printf("Error", err)
+			glog.Info("Error", err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
 		fullImage, tag, err := splitImageTag(decodedValue)
 		if err != nil {
-			log.Printf("Error", err)
+			glog.Info("Error", err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
 		repo, image, err := splitImage(fullImage)
 		if err != nil {
-			log.Printf("Error", err)
+			glog.Info("Error", err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -147,7 +148,7 @@ func main() {
 
 	err = http.ListenAndServe(*addr, nil)
 	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
+		glog.Error("ListenAndServe: ", err)
 	}
 }
 
@@ -182,7 +183,7 @@ func watchBuilds(buildService *pkg.KpackBuildService, h *pkg.Hub) {
 	informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			mObj := obj.(*v1alpha1.Build)
-			log.Printf("New build Added to Store: %s", mObj.GetName())
+			glog.Info("New build Added to Store: %s", mObj.GetName())
 
 			str, _ := json.Marshal(mObj)
 
@@ -190,7 +191,7 @@ func watchBuilds(buildService *pkg.KpackBuildService, h *pkg.Hub) {
 		},
 		UpdateFunc: func(old interface{}, new interface{}) {
 			build := new.(*v1alpha1.Build)
-			log.Printf("Build updated: %s", build.GetName())
+			glog.Info("Build updated: %s", build.GetName())
 
 			str, _ := json.Marshal(build)
 

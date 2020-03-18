@@ -19,8 +19,7 @@ type readyContainer struct {
 	namespace     string
 }
 
-func TestLogs(image string, build string) (string, error) {
-	// use the current context in kubeconfig
+func FetchLogs(image string, build string) (string, error) {
 	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		clientcmd.NewDefaultClientConfigLoadingRules(),
 		&clientcmd.ConfigOverrides{}).ClientConfig()
@@ -39,7 +38,8 @@ func TestLogs(image string, build string) (string, error) {
 		LabelSelector: labelSelector(image, build),
 		Limit:         100,
 	}
-	podList, err := clientset.CoreV1().Pods("default").List(listOptions)
+
+	podList, err := clientset.CoreV1().Pods("").List(listOptions)
 	if err != nil {
 		return "", err
 	}

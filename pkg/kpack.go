@@ -1,9 +1,9 @@
 package pkg
 
 import (
-	"github.com/matthewmcnew/build-service-visualization/k8s"
 	"github.com/pivotal/kpack/pkg/client/clientset/versioned"
 	"github.com/pivotal/kpack/pkg/client/informers/externalversions"
+	"k8s.io/client-go/tools/clientcmd"
 	"log"
 	"time"
 )
@@ -14,7 +14,11 @@ type KpackService struct {
 }
 
 func NewKpackService() (*KpackService, error) {
-	clusterConfig, err := k8s.BuildConfigFromFlags("", "")
+	//clusterConfig, err := k8s.BuildConfigFromFlags("", "")
+	clusterConfig, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		clientcmd.NewDefaultClientConfigLoadingRules(),
+		&clientcmd.ConfigOverrides{}).ClientConfig()
+
 	if err != nil {
 		return nil, err
 	}
