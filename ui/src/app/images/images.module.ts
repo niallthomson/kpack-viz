@@ -7,10 +7,12 @@ import { ClarityModule } from '@clr/angular';
 import { DetailComponent } from './detail/detail.component';
 import { BuildComponent } from './build/build.component';
 import { NgBytesPipeModule } from 'angular-pipes';
+import { AppModule } from '../app.module';
+import { SafeHtmlPipe } from './safe-html.pipe';
 
 
 @NgModule({
-  declarations: [ImagesComponent, DetailComponent, BuildComponent],
+  declarations: [ImagesComponent, DetailComponent, BuildComponent, SafeHtmlPipe],
   imports: [
     CommonModule,
     ImagesRoutingModule,

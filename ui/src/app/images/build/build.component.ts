@@ -4,6 +4,9 @@ import { BuildsService } from 'src/app/builds/builds.service';
 import { Build } from 'src/app/builds/build';
 import { ImagesService } from '../images.service';
 import { RawImage } from '../raw-image';
+import {
+  default as AnsiUp
+} from 'ansi_up';
 
 @Component({
   selector: 'app-build',
@@ -40,7 +43,8 @@ export class BuildComponent implements OnInit {
         }
 
         this.buildsService.getLogs(this.build.image, this.build.buildNumber).subscribe(logs => {
-          this.log = logs;
+          const ansi_up = new AnsiUp();
+          this.log = ansi_up.ansi_to_html(logs);
         });
       });
     });

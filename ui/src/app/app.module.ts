@@ -16,7 +16,7 @@ import { HttpClientModule } from '@angular/common/http';
   declarations: [
     AppComponent,
     HomeComponent,
-    DateAgoPipe,
+    DateAgoPipe, 
   ],
   imports: [
     BrowserModule,
@@ -28,6 +28,7 @@ import { HttpClientModule } from '@angular/common/http';
     ImagesModule,
     HttpClientModule,
   ],
+  exports: [],
   providers: [],
   bootstrap: [AppComponent]
 })

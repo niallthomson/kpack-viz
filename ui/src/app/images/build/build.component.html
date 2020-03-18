@@ -58,7 +58,9 @@
                     <button clrTabLink>Log</button>
                     <clr-tab-content>
                         <div style="margin-top: 20px">
-                            <code style="white-space: pre-line; font-size: 0.8em">{{log}}</code>
+                            <div *ngIf="log" style="padding: 15px; background-color: #000000;">
+                                <code style="white-space: pre-line" [innerHTML]="log | safeHtml"></code>
+                            </div>
                         </div>
                     </clr-tab-content>
                 </clr-tab>
@@ -93,14 +95,17 @@
                                 <h4>BOM</h4>
                             </div>
                             <clr-accordion>
-                                <clr-accordion-panel *ngFor="let item of rawImage.imageInfo.bom">
+                                <ng-container *ngFor="let item of rawImage.imageInfo.bom">
+                                <clr-accordion-panel *ngIf="item.name">
                                     <clr-accordion-title>{{item.name}} {{item.version}}</clr-accordion-title>
                                     <clr-accordion-content *clrIfExpanded>
                                         <div class="bom-content">
                                             <div class="clr-row">
                                                 <div class="clr-col-6">
+                                                    <ng-container *ngIf="item.metadata.name">
                                                     <div><span class="p2">Name</span></div>
                                                     <div style="padding-bottom: 0.5rem">{{item.metadata.name}}</div>
+                                                    </ng-container>
                                                     <div><span class="p2">Version</span></div>
                                                     <div style="padding-bottom: 0.5rem">{{item.version}}</div>
                                                     <div><span class="p2">Buildpack</span></div>
@@ -114,12 +119,14 @@
                                                             <li *ngFor="let license of item.metadata.licenses">
                                                                 {{license.type}}</li>
                                                         </ul>
+                                                        <div *ngIf='item.metadata.licenses.length == 0'>None</div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </clr-accordion-content>
                                 </clr-accordion-panel>
+                                </ng-container>
                             </clr-accordion>
                         </ng-container>
                         <div style="margin-top: 20px; text-align: center" *ngIf="!rawImage">
