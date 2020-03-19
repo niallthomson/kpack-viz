@@ -1,7 +1,0 @@
-#@data/values
----
-namespace: kpack
-image:
-  destination: ""
-ingress:
-  domain: ""

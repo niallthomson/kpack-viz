@@ -75,7 +75,7 @@ spec:
     spec:
       containers:
       - name: kpack-viz
-        image: kpack-viz
+        image: #@ data.values.image.destination or assert.fail("missing image destination")
         imagePullPolicy: Always
       serviceAccountName: kpack-viz
       automountServiceAccountToken: true

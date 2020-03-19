@@ -26,6 +26,32 @@ Pre-requisites:
 - `kpack` installed
 - (Optional) Harbor registry
 
+### Kubernetes
+
+Currently the code makes the assumption that `kpack-viz` is installed in the same namespace as `kpack`.
+
+The example manifests provided use `ytt`, `kbld` and `kapp` to build the full manifests and deploy the application. 
+You must install these utilities first. If you do not wish to use these tools you will need to manually build the YAML files
+from the examples provided in `./deploy`.
+
+To deploy using the existing images hosted on Docker Hub:
+
+```
+./deploy.sh -v ingress.domain="<your domain>"
+```
+
+Where `<your domain>` is a fully qualified domain that will be used for the `Ingress` resource.
+
+To build a new image locally and deploy (requires Docker locally):
+
+```
+./deploy.sh -v ingress.domain="<your domain>" -v image.destination="<your image>" -f deploy/optional/image.yml
+```
+
+Where `<your image>` is the full path to a repository and image. For example:
+- To push to Docker Hub use something like `<your username>/<some image name>`. I use `nthomsonpivotal/kpackviz`.
+- To push to something like Harbor use something like `<harbor domain>/<project>/<image>`.
+
 ### Local
 
 Running locally is relatively straightforward. It has particular requirements above what was previously specified:
@@ -52,7 +78,3 @@ This will start the server on port `8080`, so access the following URL in your b
 ```
 http://localhost:8080
 ```
-
-### In Kubernetes
-
-TODO

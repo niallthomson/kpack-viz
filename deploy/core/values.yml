@@ -1,0 +1,7 @@
+#@data/values
+---
+namespace: kpack
+image:
+  destination: nthomsonpivotal/kpackviz:kbld-rand-1584653402675247000-18571412563
+ingress:
+  domain: ""

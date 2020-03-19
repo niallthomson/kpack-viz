@@ -1,0 +1,16 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("@ytt:assert", "assert")
+
+#@overlay/match by=overlay.subset({"kind":"Ingress"})
+---
+metadata:
+  annotations:
+    #@overlay/match missing_ok=True
+    kubernetes.io/tls-acme: "true"
+spec:
+  #@overlay/match missing_ok=True
+  tls:
+    - hosts:
+      - #@ data.values.ingress.domain or assert.fail("missing ingress domain")
+      secretName: kpack-viz-tls

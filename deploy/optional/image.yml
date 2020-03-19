@@ -1,0 +1,25 @@
+#@ load("@ytt:overlay", "overlay")
+#@ load("@ytt:data", "data")
+#@ load("@ytt:assert", "assert")
+
+apiVersion: kbld.k14s.io/v1alpha1
+kind: Sources
+sources:
+- image: kpack-viz
+  path: .
+---
+apiVersion: kbld.k14s.io/v1alpha1
+kind: ImageDestinations
+destinations:
+- image: kpack-viz
+  newImage: #@ data.values.image.destination or assert.fail("missing image destination")
+
+#@overlay/match by=overlay.subset({"kind":"Deployment"})
+---
+spec:
+  template:
+    spec:
+      #@overlay/match expects=1
+      containers:
+      #@overlay/match by=overlay.index(0)
+      - image: kpack-viz
