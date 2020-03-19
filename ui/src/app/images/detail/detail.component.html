@@ -39,7 +39,7 @@
         
             <clr-dg-row *clrDgItems="let build of builds">
                 <clr-dg-cell><a routerLink="build/{{build.buildNumber}}">Build #{{build.buildNumber}}</a></clr-dg-cell>
-                <clr-dg-cell>{{build.started | date: 'mediumTime' }}</clr-dg-cell>
+                <clr-dg-cell>{{build.started | date: 'medium' }}</clr-dg-cell>
                 <clr-dg-cell>{{build.status | titlecase}}</clr-dg-cell>
             </clr-dg-row>
         
