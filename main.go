@@ -23,6 +23,8 @@ var addr = flag.String("addr", ":8080", "http service address")
 func main() {
 	flag.Parse()
 
+	glog.Info("kpack-viz starting...")
+
 	kpackService, err := pkg.NewKpackService()
 	if err != nil {
 		glog.Fatal(err)
@@ -54,20 +56,20 @@ func main() {
 		enableCors(&w)
 		imageParam, ok := r.URL.Query()["image"]
 		if !ok || len(imageParam[0]) < 1 {
-			glog.Info("param 'image' is missing")
+			glog.Error("param 'image' is missing")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 		buildParam, ok := r.URL.Query()["build"]
 		if !ok || len(buildParam[0]) < 1 {
-			glog.Info("param 'build' is missing")
+			glog.Error("param 'build' is missing")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
 		logs, err := pkg.FetchLogs(imageParam[0], buildParam[0])
 		if err != nil {
-			glog.Info("Error fetching logs: %s", err)
+			glog.Error("Error fetching logs: %s", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -97,28 +99,28 @@ func main() {
 
 		tagParam, ok := r.URL.Query()["tag"]
 		if !ok || len(tagParam[0]) < 1 {
-			glog.Info("param 'tag' is missing")
+			glog.Error("param 'tag' is missing")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
 		decodedValue, err := url.QueryUnescape(tagParam[0])
 		if err != nil {
-			glog.Info("Error", err)
+			glog.Error("Error", err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
 		fullImage, tag, err := splitImageTag(decodedValue)
 		if err != nil {
-			glog.Info("Error", err)
+			glog.Error("Error", err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
 		repo, image, err := splitImage(fullImage)
 		if err != nil {
-			glog.Info("Error", err)
+			glog.Error("Error", err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}

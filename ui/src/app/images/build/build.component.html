@@ -13,20 +13,34 @@
                     <button clrTabLink>Overview</button>
                     <clr-tab-content>
                         <div class="clr-row" style="margin-top: 20px">
-                            <div class="clr-col-4">
-                                <div>
-                                    <div><span class="p2">Image</span></div>
-                                    <div style="padding-bottom: 0.5rem">{{image}}</div>
-                                    <div><span class="p2">Build</span></div>
-                                    <div style="padding-bottom: 0.5rem">{{buildNumber}}</div>
+                            <div class="clr-col-8">
+                                <div class="clr-row">
+                                    <div class="clr-col-6">
+                                        <div>
+                                            <div><span class="p2">Image</span></div>
+                                            <div style="padding-bottom: 0.5rem">{{image}}</div>
+                                            <div><span class="p2">Build</span></div>
+                                            <div style="padding-bottom: 0.5rem">{{buildNumber}}</div>
+                                        </div>
+                                    </div>
+                                    <div class="clr-col-6">
+                                        <div>
+                                            <div><span class="p2">Started</span></div>
+                                            <div style="padding-bottom: 0.5rem">{{build.started | date: 'medium'}}</div>
+                                            <div><span class="p2">Status</span></div>
+                                            <div style="padding-bottom: 0.5rem">{{build.status | titlecase}}</div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="clr-col-4">
-                                <div>
-                                    <div><span class="p2">Started</span></div>
-                                    <div style="padding-bottom: 0.5rem">{{build.started | date: 'medium'}}</div>
-                                    <div><span class="p2">Status</span></div>
-                                    <div style="padding-bottom: 0.5rem">{{build.status | titlecase}}</div>
+                                <div class="clr-row">
+                                    <div class="clr-col-12">
+                                        <div>
+                                            <div><span class="p2">Tags</span></div>
+                                            <div style="padding-bottom: 0.5rem">
+                                                <div *ngFor="let tag of build.tags">{{tag}}</div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="clr-col-4">
@@ -114,13 +128,13 @@
                                                 </div>
                                                 <div class="clr-col-6">
                                                     <div><span class="p2">Licenses</span></div>
-                                                    <div>
-                                                        <ul class="list" *ngIf='item.metadata.licenses.length > 0'>
+                                                    <div *ngIf='item.metadata.licenses?.length > 0'>
+                                                        <ul class="list">
                                                             <li *ngFor="let license of item.metadata.licenses">
                                                                 {{license.type}}</li>
                                                         </ul>
-                                                        <div *ngIf='item.metadata.licenses.length == 0'>None</div>
                                                     </div>
+                                                    <div *ngIf='!item.metadata.licenses || item.metadata.licenses?.length == 0'>None</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -139,6 +153,38 @@
                     <clr-tab-content>
                         <div style="margin-top: 20px; text-align: center" *ngIf="!rawImage">
                             No image produced
+                        </div>
+                        <div style="margin-top: 20px" *ngIf="rawImage && buildNumbers.length > 0">
+                            <clr-dropdown>
+                                <button class="btn btn-outline-primary" clrDropdownTrigger>
+                                    Compare To
+                                    <clr-icon shape="caret down"></clr-icon>
+                                </button>
+                                <clr-dropdown-menu>
+                                    <div *ngFor="let build of buildNumbers" clrDropdownItem (click)="onDiffSelect(build)">{{build}}</div>
+                                </clr-dropdown-menu>
+                            </clr-dropdown>
+                            <div class="content-container" *ngIf="diffModel && diffModel.length > 0" style="margin-bottom: 20px">
+                                <table class="table table-vertical">
+                                    <tbody>
+                                        <tr>
+                                            <th class="left" width="30%">&nbsp;</th>
+                                            <th class="left" width="30%">Build #{{fromBuild}}</th>
+                                            <th class="left" width="30%">Build #{{toBuild}}</th>
+                                        </tr>
+                                        <ng-container *ngFor="let item of diffModel">
+                                        <tr>
+                                            <td colspan="3" [className]="item.isDeleted ? 'removed-item' : 'bleh'">{{item.name}}</td>
+                                        </tr>
+                                        <tr *ngFor="let change of item.changes" [className]="item.isNew ? 'new-item' : 'existing-item'">
+                                            <td style="font-weight: normal">{{change.name}}</td>
+                                            <td class="content">{{change.old}}</td>
+                                            <td class="content">{{change.new}}</td>
+                                        </tr>
+                                        </ng-container>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </clr-tab-content>
                 </clr-tab>

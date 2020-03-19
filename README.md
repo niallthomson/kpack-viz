@@ -9,7 +9,7 @@ High-level features include:
 - Image browser
 - Build log viewer
 - Bill of materials for each build
-- (TODO) Compare two builds to understand what changed
+- Compare two builds to understand what changed
 
 ![screenshot](docs/screenshot.png)
 

@@ -7,10 +7,17 @@ export interface RawImage {
 
 export interface ImageInfo {
   buildpacks : Buildpack[],
-  bom : Map<string, string>,
+  bom : BomEntry[],
 }
 
 export interface Buildpack {
   id : string,
   version : string,
+}
+
+export interface BomEntry {
+  name : string,
+  version : string,
+  metadata : Map<string, any>,
+  buildpack : Buildpack,
 }
