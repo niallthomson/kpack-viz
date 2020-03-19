@@ -4,3 +4,5 @@ docs
 *.sh
 .github
 manifests
+ui/dist
+ui/node_modules
