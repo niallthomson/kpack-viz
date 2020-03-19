@@ -1,0 +1,14 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:assert", "assert")
+
+apiVersion: kbld.k14s.io/v1alpha1
+kind: Sources
+sources:
+- image: kpack-viz
+  path: .
+---
+apiVersion: kbld.k14s.io/v1alpha1
+kind: ImageDestinations
+destinations:
+- image: kpack-viz
+  newImage: #@ data.values.image.destination or assert.fail("missing image destination")

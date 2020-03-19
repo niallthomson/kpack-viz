@@ -1,0 +1,110 @@
+#@ load("@ytt:data", "data")
+#@ load("@ytt:assert", "assert")
+
+#@ def/end labels():
+app: kpack-viz
+
+#@ selector_label = "kpack-viz"
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  namespace: #@ data.values.namespace
+  name: kpack-viz
+rules:
+- apiGroups:
+  - build.pivotal.io
+  resources:
+  - builds
+  - builds/status
+  - builds/finalizers
+  - images
+  - images/status
+  - images/finalizers
+  - builders
+  - builders/status
+  - clusterbuilders
+  - clusterbuilders/status
+  - sourceresolvers
+  - sourceresolvers/status
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups: [""]
+  resources: ["pods", "pods/log"]
+  verbs: ["get", "watch", "list"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kpack-viz
+  namespace: #@ data.values.namespace
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kpack-viz
+  namespace: #@ data.values.namespace
+subjects:
+- kind: ServiceAccount
+  name: kpack-viz
+  namespace: #@ data.values.namespace
+roleRef:
+  kind: ClusterRole
+  name: kpack-viz
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: kpack-viz
+  name: kpack-viz
+  namespace: #@ data.values.namespace
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: #@ selector_label
+  template:
+    metadata:
+      labels:
+        run: #@ selector_label
+    spec:
+      containers:
+      - name: kpack-viz
+        image: kpack-viz
+        imagePullPolicy: Always
+      serviceAccountName: kpack-viz
+      automountServiceAccountToken: true
+status: {}
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: kpack-viz
+  namespace: #@ data.values.namespace
+spec:
+  selector: 
+    run: #@ selector_label
+  ports:
+  - port: 8080
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: kpack-viz
+  namespace: kpack
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: #@ data.values.ingress.domain or assert.fail("missing ingress domain")
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: kpack-viz
+          servicePort: 8080
